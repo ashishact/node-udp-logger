@@ -13,6 +13,13 @@ server.on('error',function(error){
 
 
 
+// make a dir at parent
+const KV_ACC_LOG_DIR = '../kv_acc_log';
+if (!fs.existsSync(KV_ACC_LOG_DIR)){
+    fs.mkdirSync(KV_ACC_LOG_DIR);
+}
+
+
 let writeStreams = {}; // each one for each device
 let addr_to_espid = {};
 
@@ -58,7 +65,7 @@ server.on('message',function(msg,info){
                     writeStreams[espid].end();
                 }
                 
-                let path = `../${espid}-${new Date().toISOString()}.csv`;
+                let path = KV_ACC_LOG_DIR + `/${espid}-${new Date().toISOString()}.csv`;
                 writeStreams[espid] = fs.createWriteStream(path);
 
             }
