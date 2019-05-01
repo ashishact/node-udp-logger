@@ -13,7 +13,23 @@ server.on('error',function(error){
 
 // emits on new datagram msg
 server.on('message',function(msg,info){
-    console.log(msg.toString());
+    
+    if(msg.length == 28){
+        
+        let s = String(msg.slice(0,4).readInt32LE()).padEnd(8) + " => "
+        for(let i = 1; i <= 6; i++){
+            s+= msg.slice(i*4,i*4+4).readFloatLE().toFixed(6).padEnd(12);
+            if(i == 3) s+= " | ";
+            else{
+                // s+= ", "
+            }
+        }
+        console.log(s);
+    }
+    else{
+        console.log(msg.toString());
+        // invalid message
+    }
     //   console.log('Data received from client : ' + msg.toString());
     //   console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
 
