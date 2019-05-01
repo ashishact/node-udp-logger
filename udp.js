@@ -1,5 +1,5 @@
 var udp = require('dgram');
-
+const fs = require('fs');
 // --------------------creating a udp server --------------------
 
 // creating a udp server
@@ -11,36 +11,81 @@ server.on('error',function(error){
   server.close();
 });
 
+
+
+let writeStreams = {}; // each one for each device
+let addr_to_espid = {};
+
 // emits on new datagram msg
 server.on('message',function(msg,info){
+    let addr = `udp:${info.address}:${info.port}`;
     
     if(msg.length == 28){
-        
-        let s = String(msg.slice(0,4).readInt32LE()).padEnd(8) + " => "
+        let s = String(msg.slice(0,4).readInt32LE() + ",").padEnd(10);
         for(let i = 1; i <= 6; i++){
-            s+= msg.slice(i*4,i*4+4).readFloatLE().toFixed(6).padEnd(12);
-            if(i == 3) s+= " | ";
-            else{
-                // s+= ", "
+            if(i == 6){
+                s+= msg.slice(i*4,i*4+4).readFloatLE().toFixed(6) + "\n";
             }
+            else{
+                s+= String(msg.slice(i*4,i*4+4).readFloatLE().toFixed(6) + ",").padEnd(12);
+            }
+            if(i == 3) s+= "    ";
         }
-        console.log(s);
+
+
+        let espid = addr_to_espid[addr];
+        if(espid && writeStreams[espid]){
+            writeStreams[espid].write(s);
+
+            if(writeStreams[espid].kvMsgCount) writeStreams[espid].kvMsgCount++;
+            else writeStreams[espid].kvMsgCount = 1;
+            process.stdout.write(`${espid}: ${String(writeStreams[espid].kvMsgCount)}`.padEnd(50) + "\r");
+        }
+        else{
+            // console.log(s);
+        }
     }
     else{
-        console.log(msg.toString());
+        let utf_msg = msg.toString();
+        console.log(utf_msg);
+        if(utf_msg.startsWith("start:")){
+            let m = utf_msg.match(/start:espid:([a-f0-9]{12})/);
+            if(m){
+                let espid = m[1];
+                addr_to_espid[addr] = espid;
+
+                if(writeStreams[espid]){
+                    writeStreams[espid].end();
+                }
+                
+                let path = `../${espid}-${new Date().toISOString()}.csv`;
+                writeStreams[espid] = fs.createWriteStream(path);
+
+            }
+            else{
+                console.log(utf_msg);
+            }
+        }
+        else if(utf_msg.startsWith("stop:")){
+            let m = utf_msg.match(/stop:espid:([a-f0-9]{12})/);
+            if(m){
+                let espid = m[1];
+                
+                if(writeStreams[espid]){
+                    writeStreams[espid].end();
+                }
+                
+                delete addr_to_espid[addr]; // because it will stop, the ip will be given to another dev
+            }
+            else{
+                console.log(utf_msg);
+            }
+        }
+        else{
+            console.log(utf_msg);
+        }
         // invalid message
     }
-    //   console.log('Data received from client : ' + msg.toString());
-    //   console.log('Received %d bytes from %s:%d\n',msg.length, info.address, info.port);
-
-    //sending msg
-    // server.send(msg,info.port,'localhost',function(error){
-    //     if(error){
-    //         client.close();
-    //     }else{
-    //         console.log('Data sent !!!');
-    //     }
-    // });
 
 });
 
