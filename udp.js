@@ -2,7 +2,8 @@
 
 var os = require('os');
 var ifaces = os.networkInterfaces();
-let mobileIPAddress = "";
+let mobileIPAddress = [];
+let finalMobileIPAddress = "";
 Object.keys(ifaces).forEach(function (ifname) {
     var alias = 0;
 
@@ -18,18 +19,34 @@ Object.keys(ifaces).forEach(function (ifname) {
         } else {
             // this interface has only one ipv4 adress
             console.log(ifname, iface.address);
-            mobileIPAddress = iface.address; // assuming it happens to have only one IP address
+            mobileIPAddress.push(iface.address); // assuming it happens to have only one IP address
         }
         ++alias;
     });
 });
+
+let ipNot192dot = null;
+for(let a of mobileIPAddress){
+    if(!a.startsWith("192.")){
+        ipNot192dot = a; 
+    }
+}
+
+if(ipNot192dot){
+    finalMobileIPAddress = ipNot192dot;
+}
+else{
+    if(mobileIPAddress.length){
+        finalMobileIPAddress = mobileIPAddress[0];
+    }
+}
 
 let request = require('request');
 request({
     url: "http://k.ai0.in/local-ip-discovery",
     method: 'POST',
     json: {
-        ip: mobileIPAddress,
+        ip: finalMobileIPAddress,
         server: true,
         client: false,
     }
