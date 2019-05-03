@@ -1,0 +1,23 @@
+{
+  "name": "node-udp-logger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "udp.js",
+  "dependencies": {
+    "request": "^2.88.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ashishact/node-udp-logger.git"
+  },
+  "author": "Ashish",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ashishact/node-udp-logger/issues"
+  },
+  "homepage": "https://github.com/ashishact/node-udp-logger#readme"
+}
