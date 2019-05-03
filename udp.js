@@ -26,7 +26,7 @@ Object.keys(ifaces).forEach(function (ifname) {
 
 let request = require('request');
 request({
-    url: "http://k.ai0.in/ip-discovery",
+    url: "http://k.ai0.in/local-ip-discovery",
     method: 'POST',
     json: {
         ip: mobileIPAddress,
