@@ -133,6 +133,16 @@ server.on('message', function (msg, info) {
         if (utf_msg.startsWith("start:")) {
             let m = utf_msg.match(/start:espid:([a-f0-9]{12})/);
             if (m) {
+
+                // SEND response
+                server.send("STARTED", info.port, info.address, (err, bytes) => {
+                    if (err) {
+                        console.log("ERR SENDING RESPONSE: ", err);
+                    }
+                });
+
+                
+
                 let espid = m[1];
                 addr_to_espid[addr] = espid;
 
