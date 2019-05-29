@@ -41,6 +41,7 @@ else{
     }
 }
 
+/*
 let request = require('request');
 request({
     url: "http://k.ai0.in/local-ip-discovery",
@@ -61,7 +62,7 @@ request({
         console.log(body);
     }
 });
-
+*/
 
 
 // --------------------creating a udp server --------------------
@@ -171,6 +172,8 @@ server.on('listening', function () {
     console.log('Server is listening at port' + port);
     console.log('Server ip :' + ipaddr);
     console.log('Server is IP4/IP6 : ' + family);
+
+    console.log("<---- READY ---->\r\n");
 });
 
 //emits after the socket is closed using socket.close();
