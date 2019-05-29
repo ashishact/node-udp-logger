@@ -1,11 +1,11 @@
-const fs = require('fs');
+import { createWriteStream, readFileSync } from 'fs';
 
 let path = "./20";
 let writePath = path + ".csv";
-let wStream = fs.createWriteStream(writePath);
+let wStream = createWriteStream(writePath);
 
 
-let buffer = fs.readFileSync(path);
+let buffer = readFileSync(path);
 for(let j = 0; j < buffer.length; j+=16){
 
     let msg = buffer.slice(j, j + 16);
