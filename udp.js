@@ -81,7 +81,7 @@ server.on('error', function (error) {
 
 
 // make a dir at parent
-const KV_ACC_LOG_DIR = '../kv_acc_log';
+const KV_ACC_LOG_DIR = '../kvacclog';
 if (!fs.existsSync(KV_ACC_LOG_DIR)) {
     fs.mkdirSync(KV_ACC_LOG_DIR);
 }
@@ -90,33 +90,41 @@ if (!fs.existsSync(KV_ACC_LOG_DIR)) {
 let writeStreams = {}; // each one for each device
 let addr_to_espid = {};
 
+
 // emits on new datagram msg
 server.on('message', function (msg, info) {
     let addr = `udp:${info.address}:${info.port}`;
 
-    if (msg.length == 28) {
-        let s = String(msg.slice(0, 4).readInt32LE() + ",").padEnd(10);
-        for (let i = 1; i <= 6; i++) {
-            if (i == 6) {
-                s += msg.slice(i * 4, i * 4 + 4).readFloatLE().toFixed(6) + "\n";
-            }
-            else {
-                s += String(msg.slice(i * 4, i * 4 + 4).readFloatLE().toFixed(6) + ",").padEnd(12);
-            }
-            if (i == 3) s += "    ";
-        }
-
-
+    if (msg.length == 20) {
         let espid = addr_to_espid[addr];
         if (espid && writeStreams[espid]) {
-            writeStreams[espid].write(s);
-
+            writeStreams[espid].write(msg);
+            
             if (writeStreams[espid].kvMsgCount) writeStreams[espid].kvMsgCount++;
             else writeStreams[espid].kvMsgCount = 1;
-            process.stdout.write(`${espid}: ${String(writeStreams[espid].kvMsgCount)}`.padEnd(50) + "\r");
+
+
+            let msgC = writeStreams[espid].kvMsgCount;
+            if(msgC % 200 === 0){ // every 2 sec for 10 ms SR
+                for(let eid of Object.keys(writeStreams)){
+                    let C = writeStreams[eid].kvMsgCount;
+                    process.stdout.write(`${eid.slice(0, 6)}(${C})  `);
+                }
+                process.stdout.write('\r');
+            }
         }
         else {
-            // console.log(s);
+            // start was not recognised
+            // start it anyway with ip as espid
+            let ip_espid = addr;
+            addr_to_espid[addr] = ip_espid;
+
+            if (writeStreams[ip_espid]) {
+                writeStreams[ip_espid].end();
+            }
+
+            let path = KV_ACC_LOG_DIR + `/${ip_espid.replace(/:/g, "-")}-${new Date().toISOString().replace(/:/g, "-")}.bin`;
+            writeStreams[ip_espid] = fs.createWriteStream(path);
         }
     }
     else {
@@ -132,7 +140,7 @@ server.on('message', function (msg, info) {
                     writeStreams[espid].end();
                 }
 
-                let path = KV_ACC_LOG_DIR + `/${espid}-${new Date().toISOString()}.csv`;
+                let path = KV_ACC_LOG_DIR + `/${espid}-${new Date().toISOString().replace(/:/g, "-")}.bin`;
                 writeStreams[espid] = fs.createWriteStream(path);
 
             }
