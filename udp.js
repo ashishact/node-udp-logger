@@ -105,7 +105,7 @@ server.on('message', function (msg, info) {
 
 
             let msgC = writeStreams[espid].kvMsgCount;
-            if(msgC % 200 === 0){ // every 2 sec for 10 ms SR
+            if(msgC % 100 === 0){ // every 1 sec for 10 ms SR
                 for(let eid of Object.keys(writeStreams)){
                     let C = writeStreams[eid].kvMsgCount;
                     process.stdout.write(`${eid.slice(0, 6)}(${C})  `);
@@ -164,7 +164,7 @@ server.on('message', function (msg, info) {
             }
         }
         else {
-            console.log(utf_msg);
+            console.log(" NOT recognised msg => ",utf_msg);
         }
         // invalid message
     }
