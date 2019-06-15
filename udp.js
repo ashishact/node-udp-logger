@@ -41,7 +41,7 @@ else{
     }
 }
 
-/*
+// /*
 let request = require('request');
 request({
     url: "http://k.ai0.in/local-ip-discovery",
@@ -62,7 +62,7 @@ request({
         console.log(body);
     }
 });
-*/
+// */
 
 
 // --------------------creating a udp server --------------------
