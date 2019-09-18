@@ -25,15 +25,15 @@ Object.keys(ifaces).forEach(function (ifname) {
     });
 });
 
-let ipNot192dot = null;
+let ip192 = null;
 for(let a of mobileIPAddress){
-    if(!a.startsWith("192.")){
-        ipNot192dot = a; 
+    if(a.startsWith("192.")){
+        ip192 = a; 
     }
 }
 
-if(ipNot192dot){
-    finalMobileIPAddress = ipNot192dot;
+if(ip192){
+    finalMobileIPAddress = ip192;
 }
 else{
     if(mobileIPAddress.length){
